@@ -53,6 +53,57 @@ Then open:
 - MPEG-DASH manifest: `http://127.0.0.1:8080/stream.mpd` (with `--dash`)
 - Landing page:       `http://127.0.0.1:8080/`
 
+### Feeding hlsd with ffmpeg
+
+hlsd doesn't use ffmpeg internally, but ffmpeg is a handy way to *produce* the
+raw PCM. Emit `s16le`, `44100` Hz, `2` channels to stdout (`pipe:1`) and pipe it
+into hlsd's stdin — the two ffmpeg output flags must match hlsd's
+`--sample-rate` / `--channels`:
+
+```sh
+# Stream a file (looped, in real time) as live HLS + DASH
+ffmpeg -re -stream_loop -1 -i input.mp3 \
+    -f s16le -ar 44100 -ac 2 pipe:1 \
+  | ./target/release/hlsd --out-dir ./stream --dash
+```
+
+```sh
+# Capture a live source (e.g. an internet radio) and republish it
+ffmpeg -re -i https://example.com/stream.aac \
+    -f s16le -ar 44100 -ac 2 pipe:1 \
+  | ./target/release/hlsd --out-dir ./stream
+```
+
+```sh
+# Generate a 440 Hz test tone — useful for a quick smoke check
+ffmpeg -f lavfi -i "sine=frequency=440:sample_rate=44100" \
+    -ac 2 -f s16le pipe:1 \
+  | ./target/release/hlsd --out-dir ./stream
+```
+
+For **Opus**, produce 48 kHz PCM and tell hlsd to match:
+
+```sh
+ffmpeg -re -i input.wav -f s16le -ar 48000 -ac 2 pipe:1 \
+  | ./target/release/hlsd --codec opus --sample-rate 48000 --out-dir ./stream
+```
+
+> `-re` makes ffmpeg read/emit at real-time (wall-clock) speed, which is what
+> you want for live output. Drop it to transcode as fast as possible.
+
+### Playing the stream
+
+`ffplay` is a *player*, so it consumes hlsd's HTTP output — it does not feed
+hlsd's stdin (use `ffmpeg` for that). Point any HLS/DASH player at the URL:
+
+```sh
+ffplay -autoexit http://127.0.0.1:8080/stream.m3u8   # HLS
+ffplay http://127.0.0.1:8080/stream.mpd              # DASH
+```
+
+Other options: `mpv http://127.0.0.1:8080/stream.m3u8`, VLC, Safari (native
+HLS), or the built-in landing page at `http://127.0.0.1:8080/`.
+
 ### Input from a FIFO
 
 ```sh

@@ -57,18 +57,19 @@ pub fn render_hls(segments: &[SegmentRef], params: &ManifestParams) -> String {
 }
 
 /// Render an HLS multivariant (master) playlist pointing at the media playlist.
+///
+/// This is a single audio-only rendition, so the variant carries the audio
+/// directly. We deliberately do NOT declare a separate `#EXT-X-MEDIA` AUDIO
+/// group referencing the same media playlist — that makes players load the
+/// audio twice and produces duplicate/"corrupt" streams.
 pub fn render_hls_master(media_uri: &str, params: &ManifestParams) -> String {
     let mut out = String::new();
     out.push_str("#EXTM3U\n");
     out.push_str("#EXT-X-VERSION:7\n");
     let _ = writeln!(
         out,
-        "#EXT-X-STREAM-INF:BANDWIDTH={},CODECS=\"{}\",AUDIO=\"aud\"",
+        "#EXT-X-STREAM-INF:BANDWIDTH={},CODECS=\"{}\"",
         params.bandwidth, params.codec
-    );
-    let _ = writeln!(
-        out,
-        "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"aud\",NAME=\"audio\",DEFAULT=YES,AUTOSELECT=YES,URI=\"{media_uri}\""
     );
     let _ = writeln!(out, "{media_uri}");
     out
