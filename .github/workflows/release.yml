@@ -55,14 +55,19 @@ jobs:
         with:
           key: ${{ matrix.target }}
 
-      # all-codecs builds fdk-aac, LAME and libopus from vendored C sources,
-      # so a C compiler and pkg-config must be present. macOS has clang +
-      # pkg-config via the Xcode CLT; Linux needs the build tools installed.
-      - name: Install build tools
+      # all-codecs builds fdk-aac, LAME and libopus from vendored C sources.
+      # audiopus_sys builds its bundled libopus with autotools, so autoconf,
+      # automake and libtool must be present in addition to a C compiler and
+      # pkg-config. macOS gets clang + pkg-config from the Xcode CLT.
+      - name: Install build tools (Linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential pkg-config
+          sudo apt-get install -y build-essential pkg-config autoconf automake libtool
+
+      - name: Install build tools (macOS)
+        if: startsWith(matrix.os, 'macos')
+        run: brew install autoconf automake libtool
 
       - name: Build
         run: cargo build --release --locked --features all-codecs --target ${{ matrix.target }} --bin hlsd
@@ -170,18 +175,20 @@ jobs:
         include:
           # all-codecs builds fdk-aac, LAME and libopus from vendored C
           # sources. FreeBSD and NetBSD ship a C compiler in the base
-          # system; pkgconf is installed for the pkg-config probe (the
-          # -sys crates fall back to their vendored copies regardless).
+          # system; audiopus_sys builds its bundled libopus with autotools,
+          # so autoconf/automake/libtool are installed too, plus pkgconf for
+          # the pkg-config probe (the -sys crates fall back to their vendored
+          # copies regardless).
           - label: freebsd-amd64
             os: freebsd
             os_version: "14.3"
             arch: x86-64
-            install_deps: sudo env ASSUME_ALWAYS_YES=YES pkg install -y rust pkgconf
+            install_deps: sudo env ASSUME_ALWAYS_YES=YES pkg install -y rust pkgconf autoconf automake libtool
           - label: netbsd-amd64
             os: netbsd
             os_version: "10.1"
             arch: x86-64
-            install_deps: sudo pkgin -y update && sudo pkgin -y install rust pkgconf
+            install_deps: sudo pkgin -y update && sudo pkgin -y install rust pkgconf autoconf automake libtool
 
     steps:
       - name: Checkout
