@@ -103,8 +103,9 @@ pub fn render_dash(segments: &[SegmentRef], params: &ManifestParams) -> String {
      timeShiftBufferDepth="PT{window}S"
      availabilityStartTime="{ast}"
      publishTime="{publish}">
+  <UTCTiming schemeIdUri="urn:mpeg:dash:utc:direct:2014" value="{publish}"/>
   <Period id="0" start="PT0S">
-    <AdaptationSet mimeType="audio/mp4" segmentAlignment="true" startWithSAP="1">
+    <AdaptationSet contentType="audio" mimeType="audio/mp4" lang="und" segmentAlignment="true" startWithSAP="1">
       <Representation id="audio" codecs="{codec}" bandwidth="{bw}" audioSamplingRate="{sr}">
         <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="{ch}"/>
         <SegmentTemplate timescale="{ts}" initialization="{init}" media="seg-$Number%05d$.m4s" startNumber="{start}">

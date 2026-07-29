@@ -94,15 +94,29 @@ ffmpeg -re -i input.wav -f s16le -ar 48000 -ac 2 pipe:1 \
 ### Playing the stream
 
 `ffplay` is a *player*, so it consumes hlsd's HTTP output — it does not feed
-hlsd's stdin (use `ffmpeg` for that). Point any HLS/DASH player at the URL:
+hlsd's stdin (use `ffmpeg` for that).
+
+**HLS** plays in ffplay out of the box:
 
 ```sh
-ffplay -autoexit http://127.0.0.1:8080/stream.m3u8   # HLS
-ffplay http://127.0.0.1:8080/stream.mpd              # DASH
+ffplay -autoexit http://127.0.0.1:8080/stream.m3u8
+mpv http://127.0.0.1:8080/stream.m3u8
 ```
 
-Other options: `mpv http://127.0.0.1:8080/stream.m3u8`, VLC, Safari (native
-HLS), or the built-in landing page at `http://127.0.0.1:8080/`.
+**DASH** needs a DASH-capable player. Note that ffmpeg/ffplay can only read
+`.mpd` when built `--enable-libxml2`; many builds (e.g. Homebrew's) omit it and
+report `Invalid data found when processing input`. Check with
+`ffprobe -demuxers | grep dash` — if there's no `dash` demuxer, use a browser
+player ([dash.js](https://reference.dashif.org/dash.js/) /
+[Shaka Player](https://shaka-player-demo.appspot.com/)), VLC, or a
+libxml2-enabled ffmpeg:
+
+```sh
+ffplay http://127.0.0.1:8080/stream.mpd   # only with a libxml2-enabled ffmpeg
+```
+
+Safari plays HLS natively, and the built-in landing page at
+`http://127.0.0.1:8080/` links to the manifests.
 
 ### Input from a FIFO
 
