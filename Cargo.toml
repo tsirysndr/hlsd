@@ -1,0 +1,38 @@
+[package]
+name = "hlsd"
+version = "0.1.0"
+edition = "2024"
+description = "Serve live HLS (and optional MPEG-DASH) from a raw PCM s16le audio stream — pure Rust by default"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+anyhow = "1"
+actix-web = "4"
+actix-files = "0.6"
+actix-cors = "0.7"
+log = "0.4"
+env_logger = "0.11"
+tokio = { version = "1", features = ["fs"] }
+
+# Pure-Rust FLAC encoder — always available, no system dependencies.
+flacenc = "0.5.1"
+
+# Optional lossy codecs. These build vendored C sources with `cc`, so they need
+# a C compiler at build time but NO pre-installed system library.
+fdk-aac = { version = "0.8", optional = true }
+mp3lame-encoder = { version = "0.2", optional = true }
+audiopus = { version = "0.2", optional = true }
+
+[features]
+default = []
+aac = ["dep:fdk-aac"]
+mp3 = ["dep:mp3lame-encoder"]
+opus = ["dep:audiopus"]
+all-codecs = ["aac", "mp3", "opus"]
+
+[profile.release]
+lto = true

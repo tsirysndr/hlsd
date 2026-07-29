@@ -1,0 +1,39 @@
+# Example hlsd configuration. Every key is optional and falls back to the
+# built-in default shown here. CLI flags override any value set in this file.
+
+[input]
+# Where the raw PCM s16le stream comes from: "stdin" | "fifo" | "unix".
+source = "stdin"
+# Filesystem path for the "fifo" or "unix" source (ignored for stdin).
+# path = "/tmp/hlsd.sock"
+sample_rate = 44100
+channels = 2
+
+[encoder]
+# Codec: "flac" (pure Rust, always available) | "aac" | "mp3" | "opus".
+# aac/mp3/opus require building with the matching Cargo feature.
+codec = "flac"
+# Target bitrate for lossy codecs (accepts 96000, "128k", "1M"). Ignored by FLAC.
+bitrate = "128k"
+# FLAC compression level 0..=8 (higher = smaller & slower). FLAC only.
+flac_compression = 5
+
+[output]
+# Directory where manifests and segments are written and served from.
+dir = "./stream"
+# Target segment length in seconds.
+segment_duration = 4
+# Number of segments kept in the live window (older ones are deleted).
+playlist_size = 6
+
+[hls]
+# Emit an HLS playlist (stream.m3u8 + master.m3u8).
+enabled = true
+
+[dash]
+# Emit an MPEG-DASH manifest (stream.mpd).
+enabled = false
+
+[server]
+host = "127.0.0.1"
+port = 8080
