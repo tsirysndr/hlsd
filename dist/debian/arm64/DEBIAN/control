@@ -1,0 +1,13 @@
+Package: hlsd
+Version: 0.1.0
+Section: sound
+Priority: optional
+Architecture: arm64
+Maintainer: Tsiry Sandratraina <tsiry.sndr@rocksky.app>
+Homepage: https://github.com/tsirysndr/hlsd
+Depends: libc6
+Description: Serve live HLS (and optional MPEG-DASH) from a raw PCM audio stream
+ hlsd is a pure-Rust server that reads a raw PCM s16le audio stream on
+ stdin and serves it as live HLS (and optionally MPEG-DASH), segmenting
+ and muxing on the fly with no external tools required. Optional lossy
+ codecs (AAC, MP3, Opus) can be enabled at build time.
