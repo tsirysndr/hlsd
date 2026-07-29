@@ -179,21 +179,24 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # all-codecs builds fdk-aac, LAME and libopus from vendored C
-          # sources. FreeBSD and NetBSD ship a C compiler in the base
-          # system; audiopus_sys builds its bundled libopus with autotools,
-          # so autoconf/automake/libtool are installed too, plus pkgconf for
-          # the pkg-config probe (the -sys crates fall back to their vendored
-          # copies regardless).
+          # The codec crates build their C sources from vendored copies.
+          # fdk-aac and LAME use the `cc` crate; audiopus_sys builds libopus
+          # with autotools, so autoconf/automake/libtool are installed too.
+          # pkgconf is for the pkg-config probe (the -sys crates fall back to
+          # their vendored copies regardless). NetBSD builds without opus
+          # (autotools libopus doesn't build cleanly there), so it only
+          # enables aac,mp3.
           - label: freebsd-amd64
             os: freebsd
             os_version: "14.3"
             arch: x86-64
+            features: all-codecs
             install_deps: sudo env ASSUME_ALWAYS_YES=YES pkg install -y rust pkgconf autoconf automake libtool
           - label: netbsd-amd64
             os: netbsd
             os_version: "10.1"
             arch: x86-64
+            features: aac,mp3
             install_deps: sudo pkgin -y update && sudo pkgin -y install rust pkgconf autoconf automake libtool
 
     steps:
@@ -227,7 +230,7 @@ jobs:
           esac
           # Keep target/ outside the workspace so it isn't synced back
           export CARGO_TARGET_DIR="$HOME/build"
-          cargo build --release --locked --features all-codecs --bin hlsd
+          cargo build --release --locked --features ${{ matrix.features }} --bin hlsd
           mkdir -p dist
           cp "$CARGO_TARGET_DIR/release/hlsd" dist/hlsd
 
