@@ -13,6 +13,29 @@ as opt-in Cargo features that compile *vendored* C sources — they need a C
 compiler at build time but **no pre-installed system library**. Works on Linux
 and macOS.
 
+## Table of Contents
+
+- [Features](#features)
+- [Install](#install)
+  - [Debian / Ubuntu (`apt`)](#debian--ubuntu-apt)
+  - [Fedora / RHEL (`dnf`)](#fedora--rhel-dnf)
+  - [Nix](#nix)
+  - [Homebrew](#homebrew)
+  - [Download from GitHub Releases](#download-from-github-releases)
+- [Build from source](#build-from-source)
+- [Quick start](#quick-start)
+  - [Feeding hlsd with ffmpeg](#feeding-hlsd-with-ffmpeg)
+  - [Playing the stream](#playing-the-stream)
+  - [Input from a FIFO](#input-from-a-fifo)
+  - [Input from a Unix socket](#input-from-a-unix-socket)
+- [Configuration](#configuration)
+  - [Full example config (all options)](#full-example-config-all-options)
+  - [CLI flags](#cli-flags)
+- [Codec support & compatibility](#codec-support--compatibility)
+- [How it works](#how-it-works)
+- [Development](#development)
+- [License](#license)
+
 ## Features
 
 - Input from **stdin**, **FIFO**, or **Unix domain socket**
@@ -22,7 +45,66 @@ and macOS.
 - Live sliding-window playlist with automatic old-segment eviction
 - Correct MIME types, permissive CORS, atomic manifest writes
 
-## Install / Build
+## Install
+
+Prebuilt binaries are published for **Linux** and **macOS** (`x86_64` and
+`arm64`) plus **FreeBSD/NetBSD** (`amd64`) on every tagged release. All
+prebuilt binaries ship with the extra codecs enabled (NetBSD: AAC + MP3 only).
+
+### Debian / Ubuntu (`apt`)
+
+Packages are hosted on [Gemfury](https://gemfury.com):
+
+```sh
+echo "deb [trusted=yes] https://apt.fury.io/tsiry/ /" \
+  | sudo tee /etc/apt/sources.list.d/hlsd.list
+sudo apt-get update
+sudo apt-get install hlsd
+```
+
+### Fedora / RHEL (`dnf`)
+
+```sh
+sudo tee /etc/yum.repos.d/hlsd.repo >/dev/null <<'EOF'
+[fury]
+name=Gemfury Private Repo
+baseurl=https://yum.fury.io/tsiry/
+enabled=1
+gpgcheck=0
+EOF
+sudo dnf install hlsd
+```
+
+### Nix
+
+```sh
+# From the flake (installs into your profile)
+nix profile install github:tsirysndr/hlsd
+
+# Or run without installing
+nix run github:tsirysndr/hlsd -- --help
+```
+
+### Homebrew
+
+```sh
+brew install tsirysndr/tap/hlsd
+```
+
+### Download from GitHub Releases
+
+Grab a tarball for your platform from the
+[releases page](https://github.com/tsirysndr/hlsd/releases):
+
+```sh
+# Example: Linux x86_64 — pick the asset matching your OS/arch
+curl -fsSL -o hlsd.tar.gz \
+  https://github.com/tsirysndr/hlsd/releases/latest/download/hlsd-<version>-linux-amd64.tar.gz
+tar -xzf hlsd.tar.gz
+sudo install -m 0755 hlsd /usr/local/bin/hlsd
+```
+
+## Build from source
 
 ```sh
 # Default: pure Rust, FLAC only, no system deps
