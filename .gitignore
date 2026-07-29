@@ -1,3 +1,7 @@
 /target
 /stream
 *.tmp
+
+# Nix build output symlinks
+/result
+/result-*
