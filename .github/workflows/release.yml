@@ -22,8 +22,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Build each Darwin target on a NATIVE runner — macos-26-intel is
+          # an Intel image, macos-latest is Apple Silicon. audiopus_sys
+          # builds libopus with autotools, whose `configure` detects the
+          # host arch and ignores the Rust --target, so cross-compiling
+          # (e.g. x86_64 from an arm64 runner) links arm64 objects into an
+          # x86_64 binary and fails. Native runners sidestep that entirely.
           - label: darwin-amd64
-            os: macos-latest
+            os: macos-26-intel
             target: x86_64-apple-darwin
           - label: darwin-arm64
             os: macos-latest
