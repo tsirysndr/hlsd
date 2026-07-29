@@ -5,6 +5,8 @@ edition = "2024"
 description = "Serve live HLS (and optional MPEG-DASH) from a raw PCM s16le audio stream — pure Rust by default"
 license = "MIT"
 readme = "README.md"
+keywords = ["hls", "dash", "audio", "streaming", "pcm"]
+categories = ["multimedia::audio", "web-programming::http-server", "command-line-utilities"]
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
