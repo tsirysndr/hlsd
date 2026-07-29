@@ -1,6 +1,7 @@
 # hlsd
 
 [![Release](https://github.com/tsirysndr/hlsd/actions/workflows/release.yml/badge.svg)](https://github.com/tsirysndr/hlsd/actions/workflows/release.yml)
+[![FlakeHub](https://img.shields.io/endpoint?url=https://flakehub.com/f/tsirysndr/hlsd/badge)](https://flakehub.com/flake/tsirysndr/hlsd)
 
 A small, self-contained daemon that takes a raw **PCM s16le** audio stream and
 serves it live as **HLS** — and optionally **MPEG-DASH** — over HTTP.
