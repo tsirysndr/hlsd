@@ -44,14 +44,14 @@
           version = "0.1.0";
           strictDeps = true;
 
-          # We build with all-codecs enabled. The optional codec crates
-          # (fdk-aac, mp3lame-encoder, audiopus) compile vendored C sources
-          # with the `cc` crate, so a C compiler must be on PATH — `stdenv.cc`
-          # is the toolchain for this platform (clang on Darwin, gcc on Linux).
-          # audiopus_sys builds its bundled libopus with autotools, so
-          # autoconf/automake/libtool are required too. pkg-config lets the
-          # -sys crates probe for system libraries (they fall back to their
-          # vendored copies otherwise).
+          # We build the aac and mp3 codecs (opus is disabled here). The
+          # optional codec crates (fdk-aac, mp3lame-encoder) compile vendored
+          # C sources with the `cc` crate, so a C compiler must be on PATH —
+          # `stdenv.cc` is the toolchain for this platform (clang on Darwin,
+          # gcc on Linux). autoconf/automake/libtool are kept for the
+          # audiopus_sys autotools libopus build in case opus is re-enabled.
+          # pkg-config lets the -sys crates probe for system libraries (they
+          # fall back to their vendored copies otherwise).
           nativeBuildInputs = [
             pkgs.pkg-config
             pkgs.stdenv.cc
@@ -64,8 +64,8 @@
             pkgs.libiconv
           ];
 
-          # Build just the one bin target, with every codec enabled.
-          cargoExtraArgs = "--locked --features all-codecs --bin hlsd";
+          # Build just the one bin target, with the aac + mp3 codecs.
+          cargoExtraArgs = "--locked --features aac,mp3 --bin hlsd";
         };
 
         craneLibLLvmTools = craneLib.overrideToolchain
